@@ -12,11 +12,11 @@ from pocketsphinx import *
 DETECT_HYSTERESIS = 1.2 # level should fall lower that background noise
 DETECT_MIN_LENGTH_S = 2.5 # minimal length of record
 DETECT_MAX_LENGTH_S = 10 # minimal amount of buffers to activate
-DETECT_BUFFERS_FOR_INIT = 10 # number of buffers for initialising
+DETECT_BUFFERS_FOR_INIT = 5 # number of buffers for initialising
 
 class AlexaAudio:
-	def __init__(self, threshold, callback):
-		self.ad = alexa_audio_device.AlexaAudioDevice()
+	def __init__(self, threshold, deviceMac, callback):
+		self.ad = alexa_audio_device.get_audio_device(deviceMac)
 		self.callback = callback
 		self.beep_finished_buf = self._beep(150, 1000)
 		self.beep_short_buf = self._beep(150, 3000)
@@ -73,8 +73,8 @@ class AlexaAudio:
 		while self.is_run:
 			buf = self.ad.read(16000)
 			if buf is None:
-				logging.info("Alexa audio processing exit")
-				break
+				time.sleep(0.5)
+				continue
 			if self.skip > 0:
 				self.skip -= len(buf)
 				continue
